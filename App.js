@@ -1,7 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, Pressable, Image, FlatList } from 'react-native';
-import { useState } from 'react';
+import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, Pressable, Image, FlatList, ToastAndroid } from 'react-native';
+import { useEffect, useState } from 'react';
 import Logo from './assets/linux.png'
+import Img1 from './assets/image1.jpg'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -11,8 +12,9 @@ const Card = (props) => {
 
   return (
     <View style={CardStyle.wrapper}>
-      <Text style={CardStyle.text}>{props.title}</Text>
+      <Text style={CardStyle.title}>{props.title}</Text>
       <Text style={CardStyle.body}>{props.children}</Text>
+      <Image source={props.img} style={CardStyle.img} />
     </View>
 
   )
@@ -20,8 +22,8 @@ const Card = (props) => {
 
 const LoginScreen = ({ navigation }) => {
 
-  const showToast = () => {
-    // ToastAndroid.show('Logging success!', ToastAndroid.SHORT)
+  const showToast = (message) => {
+    ToastAndroid.show(message, ToastAndroid.SHORT)
   }
 
   const image = { uri: 'https://legacy.reactjs.org/logo-og.png' };
@@ -30,8 +32,13 @@ const LoginScreen = ({ navigation }) => {
   const [pwd, onChangePwd] = useState()
 
   function onHandleButton() {
-    navigation.navigate('home', { name: name })
-    showToast()
+    if(name === 'John'){
+      navigation.navigate('home', { name: name })
+      showToast('Logging success!')
+    } else{
+      showToast('Logging error!')
+    }
+
   }
 
 
@@ -49,12 +56,14 @@ const LoginScreen = ({ navigation }) => {
         value={name}
         placeholder='Name'
         style={styles.input}
+        keyboardType='ascii-capable'
       />
       <TextInput
         onChangeText={onChangePwd}
         value={pwd}
         placeholder='Password'
         style={styles.input}
+        keyboardType='number-pad'
       />
 
 
@@ -82,12 +91,20 @@ const HomeScreen = ({ navigation, route }) => {
 
   const name = route.params.name
 
-  const data = [
-    {
-      title: 'title',
-      body: 'Minim velit laborum labore ullamco ut aute eiusmod amet.'
-    } * 7,
-  ]
+  const data = [ ]
+
+  for (let i = 0; i < 10; i++){
+
+    data.push({ id: i,
+      title: `Title ${i}`,
+      body: 'Minim velit laborum labore ullamco ut aute eiusmod amet.',
+      img: Logo
+    })
+  }
+
+  // useEffect(()=> {
+    
+  // }, [])
 
 
   return (
@@ -103,12 +120,13 @@ const HomeScreen = ({ navigation, route }) => {
         data={data}
         renderItem={({ item }) => (
 
-          <Card title={item.title}>
+          <Card title={item.title} img={Img1}>
             {item.body}
+   
           </Card>
 
         )}
-        keyExtractor={item => item.title}
+        keyExtractor={item => item.id}
       />
 
 
@@ -140,7 +158,9 @@ export default function App() {
           name='home'
           component={HomeScreen}
           options={{
-            title: 'Home'
+            title: 'Feed',
+            // headerShown: false
+          
           }}
         />
 
@@ -151,23 +171,51 @@ export default function App() {
 
 const CardStyle = StyleSheet.create({
   wrapper: {
-    backgroundColor: 'black',
-    padding: 16,
+    backgroundColor: '#eee',
+    // padding: 16,
     margin: 16,
-    borderRadius: 8
+    borderRadius: 8,
+    flex: 1,
+    alignItems: 'center',
+    textAlign: 'start'
 
   },
 
   text: {
-    color: '#fff',
+    color: '#363636',
     fontSize: 22,
-    fontWeight: '600'
+    fontWeight: '600',
+    textAlign: 'left'
   },
 
   body: {
-    color: '#fff',
+    color: '#363636',
     fontWeight: '200',
-    fontSize: 20
+    fontSize: 20,
+    marginBottom: 0
+  },
+
+  img: {
+    width: '100%',
+    height: 200,
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginTop: 16,
+    flex: 1,
+    borderRadius: 8,
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
+  },
+
+  title:{
+    fontWeight: '600',
+    fontSize: 26,
+    color: '#363636',
+    // backgroundColor: 'red'
+    marginRight: 'auto',
+    marginLeft: 16,
+    marginBottom: 8,
+    marginTop: 8
   }
 })
 
@@ -202,6 +250,7 @@ const styles = StyleSheet.create({
     // height: 40,
     marginTop: 12,
     borderWidth: 1,
+    // borderRadius: 12,
     padding: 8,
     fontSize: 20,
     width: 340
