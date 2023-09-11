@@ -5,6 +5,8 @@ import Logo from './assets/linux.png'
 import Img1 from './assets/image1.jpg'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Perfil from './assets/Perfil';
+// import LoginScreen from './assets/screens/Login';
 
 const Stack = createNativeStackNavigator()
 
@@ -14,7 +16,12 @@ const Card = (props) => {
     <View style={CardStyle.wrapper}>
       <Text style={CardStyle.title}>{props.title}</Text>
       <Text style={CardStyle.body}>{props.children}</Text>
+      <Pressable style={CardStyle.button_outlined}>
+        <Text style={CardStyle.buttonText}>Read</Text>
+
+      </Pressable>
       <Image source={props.img} style={CardStyle.img} />
+
     </View>
 
   )
@@ -32,10 +39,10 @@ const LoginScreen = ({ navigation }) => {
   const [pwd, onChangePwd] = useState()
 
   function onHandleButton() {
-    if(name === 'John'){
+    if (name === 'John') {
       navigation.navigate('home', { name: name })
       showToast('Logging success!')
-    } else{
+    } else {
       showToast('Logging error!')
     }
 
@@ -89,40 +96,54 @@ const LoginScreen = ({ navigation }) => {
 }
 const HomeScreen = ({ navigation, route }) => {
 
+  const [posts, setPosts] = useState()
+
+  useEffect(() => {
+    fetch('https://jsonplaceholder.typicode.com/posts', {
+      method: "GET"
+    })
+
+      // Tratamento do sucesso
+
+      .then(response => response.json())  // converter para json
+
+      .then(json => setPosts(json))    //imprimir dados no console
+
+      .catch(err => console.log('Erro de solicitação', err));
+  }, [])
+
   const name = route.params.name
 
-  const data = [ ]
+  const data = []
 
-  for (let i = 0; i < 10; i++){
+  for (let i = 0; i < 10; i++) {
 
-    data.push({ id: i,
+    data.push({
+      id: i,
       title: `Title ${i}`,
       body: 'Minim velit laborum labore ullamco ut aute eiusmod amet.',
       img: Logo
     })
   }
 
-  // useEffect(()=> {
-    
-  // }, [])
 
 
   return (
     <View style={styles.homeContainer}>
 
-
+      <Perfil />
 
       <Text style={styles.welcome}>{name ? `Hello ${name}` : 'Welcome'}</Text>
 
 
 
       <FlatList
-        data={data}
+        data={posts}
         renderItem={({ item }) => (
 
-          <Card title={item.title} img={Img1}>
-            {item.body}
-   
+          <Card title={item.title.length > 20 ? item.title.substr(0, 20).replace('\n', '') : item.title} img={Img1}>
+            {item.body.length > 60 ? item.body.substr(0, 60).replace('\n', '... ') : item.body}
+
           </Card>
 
         )}
@@ -160,7 +181,7 @@ export default function App() {
           options={{
             title: 'Feed',
             // headerShown: false
-          
+
           }}
         />
 
@@ -176,7 +197,7 @@ const CardStyle = StyleSheet.create({
     margin: 16,
     borderRadius: 8,
     flex: 1,
-    alignItems: 'center',
+    // alignItems: 'center',
     textAlign: 'start'
 
   },
@@ -192,7 +213,10 @@ const CardStyle = StyleSheet.create({
     color: '#363636',
     fontWeight: '200',
     fontSize: 20,
-    marginBottom: 0
+    marginBottom: 0,
+    marginLeft: 16,
+    marginRight: 16,
+
   },
 
   img: {
@@ -207,16 +231,40 @@ const CardStyle = StyleSheet.create({
     borderTopRightRadius: 0,
   },
 
-  title:{
+  title: {
     fontWeight: '600',
-    fontSize: 26,
+    fontSize: 24,
     color: '#363636',
     // backgroundColor: 'red'
-    marginRight: 'auto',
-    marginLeft: 16,
+    margin: 16,
     marginBottom: 8,
-    marginTop: 8
+    marginTop: 8,
+
+  },
+
+  button_outlined: {
+    marginLeft: 16,
+    marginRight: 'auto',
+    marginTop: 16,
+    alignItems: 'center',
+    justifyContent: 'left',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    backgroundColor: '#eee',
+    elevation: 3,
+    borderRadius: 4,
+    width: 128,
+    borderWidth: 1,
+    fontWeight: '600'
+  },
+
+  buttonText:{
+    color: '#282828',
+    fontSize: 18,
   }
+
+
+
 })
 
 const styles = StyleSheet.create({
